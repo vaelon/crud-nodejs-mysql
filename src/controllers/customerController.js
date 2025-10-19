@@ -4,9 +4,13 @@ const controller = {};
 
 controller.list = (req, res, next) => {
     req.getConnection((err, conn) => {
-        if (err) return next(err);
+        if (err) {
+            return res.redirect('/?error=' + encodeURIComponent('List failed. DB connection error'));
+        } //return next(err);
         conn.query('SELECT * FROM customer', (err, customers) => {
-            if (err) return next(err);
+            if (err) {
+            return res.redirect('/?error=' + encodeURIComponent('List failed'));
+            } //return next(err);
             return res.render('customers', {
                 data: customers
             });
@@ -16,11 +20,10 @@ controller.list = (req, res, next) => {
 
 controller.save = (req, res, next) => {
     const data = req.body;
-// add dynamic log here to show submitted customer data
     req.getConnection((err, conn) => {
         conn.query('INSERT INTO customer set ?', [data], (err, customer) => {
             if (err) {
-            return res.redirect('/?error=' + encodeURIComponent('Insert failed'));
+           return res.redirect('/?error=' + encodeURIComponent('Insert failed'));
       }
       return res.redirect('/');
         });
@@ -57,22 +60,20 @@ controller.edit = (req, res) => {
     });
 };
 
-controller.update = (req, res) => {
+controller.update = (req, res, next) => {
     const { id } = req.params;
-     const newCustomer = { ...req.body };
-
-  // BUG (demo): swap name <-> address
-  [newCustomer.name, newCustomer.address] = [newCustomer.address, newCustomer.name];
-  //Original code below. Built newCustomer object from middleware express-connection 
-  //const newCustomer = req.body;
+  const newCustomer = req.body;
     
     req.getConnection((err, conn) => {
+        //BUG: flip argument order
+        //conn.query('UPDATE customer set ? WHERE id = ?', [id, newCustomer], (err, rows) => {
+        //Original Code
         conn.query('UPDATE customer set ? WHERE id = ?', [newCustomer, id], (err, rows) => {
             if (err) {
-                res.json(err);
+                return res.redirect('/?error=' + encodeURIComponent('Update failed'));
             }
             
-            res.redirect('/');
+            res.redirect('/update');
         });
     });
 };
