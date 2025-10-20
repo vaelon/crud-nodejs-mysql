@@ -35,8 +35,12 @@ controller.delete = (req, res) => {
 
     req.getConnection((err, conn) => {
         conn.query('DELETE FROM customer WHERE id = ?', [id], (err, rows) => {
+           //original code
             if (err) {
                 res.json(err);
+                setTimeout(() => res.redirect('/'), 600); // <-- still double-sends (crashes),
+                                              //     but after 300ms (enough to capture)
+    return; // keep control flow tidy
             }
 
             res.redirect('/');
@@ -66,9 +70,9 @@ controller.update = (req, res, next) => {
     
     req.getConnection((err, conn) => {
         //BUG: flip argument order
-        //conn.query('UPDATE customer set ? WHERE id = ?', [id, newCustomer], (err, rows) => {
+        conn.query('UPDATE customer set ? WHERE id = ?', [id, newCustomer], (err, rows) => {
         //Original Code
-        conn.query('UPDATE customer set ? WHERE id = ?', [newCustomer, id], (err, rows) => {
+        //conn.query('UPDATE customer set ? WHERE id = ?', [newCustomer, id], (err, rows) => {
             if (err) {
                 return res.redirect('/?error=' + encodeURIComponent('Update failed'));
             }
