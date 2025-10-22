@@ -69,9 +69,9 @@ controller.edit = (req, res) => {
 controller.update = (req, res, next) => {
     const { id } = req.params;
   //Original Code
-    //const newCustomer = req.body;
+    const newCustomer = req.body;
     //Bug: Swap Order
-    const newCustomer = {...req.body};
+    //const newCustomer = {...req.body};
     //[newCustomer.name, newCustomer.address] = [newCustomer.address, newCustomer.name];
     req.getConnection((err, conn) => {
         //Demo: Add dynamic log here. Capture {newCustomer} payload.
